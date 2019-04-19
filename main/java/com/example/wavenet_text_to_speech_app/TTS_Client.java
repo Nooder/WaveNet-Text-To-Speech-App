@@ -1,3 +1,6 @@
+/** The Text-To-Speech Client Class
+ * Generates the audio file of a given text
+ */
 package com.example.wavenet_text_to_speech_app;
 
 // Imports the Google Cloud client library
@@ -10,27 +13,27 @@ import com.google.cloud.texttospeech.v1.TextToSpeechClient;
 import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
 import com.google.protobuf.ByteString;
 
-import java.io.BufferedReader;
-import java.io.File;
+// Imports for filesystem
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-
-import android.app.Activity;
-import android.content.res.AssetManager;
-import android.net.Uri;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 public class TTS_Client extends AsyncTask<String, Void, String> {
     private static final String TAG = "TTS_Client";
+    private Context context;
+
+    public TTS_Client (Context context) {
+        this.context = context;
+    }
 
     @Override
     protected String doInBackground(String... params) {
         try {
-            Log.d(TAG, "Inside Create_Client()");
+            Log.d(TAG, "Started Create_Client()'s doInBackGround()");
+            Log.d(TAG, "params[0] passed over : " + params[0]);
             Create_Client(params[0]);
+            Log.d(TAG, "Completed Create_Client()'s doInBackGround()");
         } catch (Exception e){
             // failed
             Log.d(TAG, e.toString());
@@ -44,18 +47,33 @@ public class TTS_Client extends AsyncTask<String, Void, String> {
         super.onPostExecute(result);
     }
 
-    private void TTS_Client() {
+    /** Saves the result audio file Bytestream (Android) */
+    public void saveAudio(com.google.protobuf.ByteString rawAudioFile) {
+        String filename = "output.mp3";
+        FileOutputStream fos = null;
 
+        try {
+            fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
+            fos.write(rawAudioFile.toByteArray());
+            Log.d(TAG, "Audio content written to file: " +
+                    context.getFilesDir() + "/" + filename);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to write audio output file: " + e.toString());
+        }
     }
 
     public void Create_Client(String text) throws Exception {
         // Credentials in $GOOGLE_APPLICATION_CREDENTIALS environment variable
         // Instantiates a client
+        Log.d(TAG,"Inside Create_Client()");
+
         try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create()) {
             // Set the text input to be synthesized
             SynthesisInput input = SynthesisInput.newBuilder()
                     .setText(text)
                     .build();
+
+            Log.d(TAG, "TTS_Client successfully loaded.");
 
             // Build the voice request and set the language codes
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
@@ -76,16 +94,19 @@ public class TTS_Client extends AsyncTask<String, Void, String> {
             // Get the audio contents from the response
             ByteString audioContents = response.getAudioContent();
 
-            // Write the response to the output file
-            try (OutputStream out = new FileOutputStream("output.mp3")) {
-                out.write(audioContents.toByteArray());
-                Log.d(TAG, "Audio content written to file: output.mp3");
-            }
+            // Write the response to the output file (PC)
+//            try (OutputStream out = new FileOutputStream("output.mp3")) {
+//                out.write(audioContents.toByteArray());
+//                Log.d(TAG, "Audio content written to file: output.mp3");
+//            }
+            /** Android save to file */
+            saveAudio(audioContents);
 
-            // Write the response to output file (Android internal storage)
-            //File file = new File(this.getFilesDir(), "output.mp3");
+        }
+        catch (Exception e) {
+            Log.e(TAG, "Failed to Create_Client(): \n" + e.toString());
         }
 
-
+        Log.d(TAG, "Completed Create_Client()");
     }
 }

@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 public class DisplayMessageActivity extends AppCompatActivity {
     private static final String TAG = "DisplayMessageActivity";
-    public TTS_Client ttsClient = new TTS_Client();
+    public TTS_Client ttsClient = new TTS_Client(this);
     public HTML_Parser htmlParser = new HTML_Parser();
 
     @Override

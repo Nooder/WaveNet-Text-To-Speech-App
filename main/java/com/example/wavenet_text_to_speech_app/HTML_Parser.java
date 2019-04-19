@@ -1,3 +1,6 @@
+/** JSoup Implementation to parse raw html text
+ * V1.0 Needs optimization for tags search
+ */
 package com.example.wavenet_text_to_speech_app;
 
 import android.os.AsyncTask;
@@ -36,6 +39,7 @@ public class HTML_Parser extends AsyncTask<String, Void, String> {
         super.onPostExecute(result);
     }
 
+    /** Parse the text given by searching for the <p></p> tag texts */
     public void parse_html() {
         try {
             Elements paragraphs = returnedHtml.getElementsByTag("p");
@@ -48,6 +52,7 @@ public class HTML_Parser extends AsyncTask<String, Void, String> {
         }
     }
 
+    /** Simple GET Request - Using JSoup */
     public void get_url(String url) {
         try {
             this.returnedHtml = Jsoup.connect(url)
