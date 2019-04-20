@@ -1,2 +1,6 @@
 
 main/java/com/example/wavenet_text_to_speech_app/Google_Credentials\.java
+
+*.hprof
+
+app/src/main/java/com/example/wavenet_text_to_speech_app/Google_Credentials\.java
